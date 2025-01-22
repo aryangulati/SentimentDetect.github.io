@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Agent - Sentiment Analysis</title>
+  <title>AI Agent - Toxicity and Threat Detection</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.5.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
   <style>
@@ -31,8 +31,8 @@
   </style>
 </head>
 <body>
-  <h1>AI Agent - Sentiment Analysis</h1>
-  <p>Type a sentence below to check if it contains toxic language.</p>
+  <h1>AI Agent - Toxicity and Threat Detection</h1>
+  <p>Type a sentence below to check for toxic or threatening content.</p>
   <textarea id="inputText" placeholder="Type here..."></textarea>
   <br>
   <button onclick="analyzeText()">Analyze</button>
@@ -40,6 +40,14 @@
 
   <script>
     let model;
+    const customKeywords = [
+      "kill you",
+      "fuck you",
+      "i will hurt",
+      "murder",
+      "die",
+      "violence"
+    ]; // Add more explicit phrases here
 
     // Load the Toxicity model (pre-trained, runs in-browser)
     toxicity.load(0.9).then((loadedModel) => {
@@ -49,12 +57,22 @@
 
     // Function to analyze text
     async function analyzeText() {
-      const inputText = document.getElementById('inputText').value;
-      if (!inputText.trim()) {
+      const inputText = document.getElementById('inputText').value.trim();
+      if (!inputText) {
         document.getElementById('output').innerText = "Please enter some text!";
         return;
       }
       document.getElementById('output').innerText = "Analyzing...";
+      
+      // Check for custom keywords
+      const keywordMatches = customKeywords.filter(keyword => inputText.toLowerCase().includes(keyword));
+
+      if (keywordMatches.length > 0) {
+        document.getElementById('output').innerText = `Alert! Detected explicit content: "${keywordMatches.join(', ')}"`;
+        return;
+      }
+
+      // Use pre-trained model for further analysis
       const predictions = await model.classify(inputText);
 
       // Display results
