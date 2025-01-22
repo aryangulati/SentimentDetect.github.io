@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent - Sentiment Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.5.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      text-align: center;
+    }
+    textarea {
+      width: 80%;
+      height: 100px;
+      margin: 1rem 0;
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI Agent - Sentiment Analysis</h1>
+  <p>Type a sentence below to check if it contains toxic language.</p>
+  <textarea id="inputText" placeholder="Type here..."></textarea>
+  <br>
+  <button onclick="analyzeText()">Analyze</button>
+  <div id="output"></div>
+
+  <script>
+    let model;
+
+    // Load the Toxicity model (pre-trained, runs in-browser)
+    toxicity.load(0.9).then((loadedModel) => {
+      model = loadedModel;
+      document.getElementById('output').innerText = "Model loaded. Type a sentence to analyze!";
+    });
+
+    // Function to analyze text
+    async function analyzeText() {
+      const inputText = document.getElementById('inputText').value;
+      if (!inputText.trim()) {
+        document.getElementById('output').innerText = "Please enter some text!";
+        return;
+      }
+      document.getElementById('output').innerText = "Analyzing...";
+      const predictions = await model.classify(inputText);
+
+      // Display results
+      let result = "Analysis Results:\n";
+      predictions.forEach((prediction) => {
+        result += `${prediction.label}: ${prediction.results[0].match ? "Yes" : "No"}\n`;
+      });
+
+      document.getElementById('output').innerText = result;
+    }
+  </script>
+</body>
+</html>
